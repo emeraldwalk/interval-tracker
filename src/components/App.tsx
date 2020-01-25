@@ -5,7 +5,8 @@ import {
   calculateGroupElapsedSeconds,
   displayTime,
   buttonDisplayText,
-  summary,
+  distinctLabelSummary,
+  contiguousLabelSummary,
   State,
 } from '../state';
 
@@ -101,9 +102,9 @@ const App: React.FC<AppProps> = () => {
 
       <ul className="c_app__summary">
         {
-          Array.from(summary(
+          distinctLabelSummary(
             stateRef.current,
-          )).map(({ items, label }, i) => [
+          ).map(({ items, label }, i) => [
             <li
               className="c_app__group-label"
               key={`label-${label}-${i}`}
@@ -113,7 +114,7 @@ const App: React.FC<AppProps> = () => {
                 {
                   displayTime(
                     calculateGroupElapsedSeconds({ items, label })
-                  )
+                  ).substr(0, 5)
                 }
               )</li>,
             <ul

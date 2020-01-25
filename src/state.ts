@@ -94,9 +94,12 @@ export function isRunning(
   return lastEntry?.type === 'start'
 }
 
-export function* summary(
+/**
+ * Group entries by contiguous label.
+ */
+export function* contiguousLabelSummary(
   { entries }: State,
-) {
+): Generator<TimeEntryGroup> {
   let group: TimeEntryGroup = {
     items: [],
     label: '',
@@ -125,4 +128,27 @@ export function* summary(
   if (group.items.length) {
     yield group
   }
+}
+
+/**
+ * Group entries by distinct labels
+ */
+export function distinctLabelSummary(
+  { entries }: State,
+): TimeEntryGroup[] {
+  const map = entries.reduceRight((memo, cur) => {
+    memo[cur.label] = memo[cur.label] || []
+    if (cur.type === 'start') {
+      memo[cur.label].push([cur, undefined])
+    }
+    else if(memo[cur.label].length) {
+      memo[cur.label][memo[cur.label].length - 1][1] = cur
+    }
+    return memo
+  }, {} as Record<string, [TimeEntry, TimeEntry | undefined][]>)
+
+  return Object.keys(map).map(label => ({
+    label,
+    items: map[label],
+  }))
 }
