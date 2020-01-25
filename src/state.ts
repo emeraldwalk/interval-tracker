@@ -4,8 +4,12 @@ export interface TimeEntry {
   type: 'start' | 'stop',
 }
 
+export interface TimeEntryGroup {
+  items: [TimeEntry, TimeEntry | undefined][],
+  label: string,
+}
+
 export interface State {
-  isRunning: boolean,
   entries: TimeEntry[],
 }
 
@@ -62,6 +66,14 @@ export function calculateElapsedSeconds(
   )
 }
 
+export function calculateGroupElapsedSeconds(
+  group: TimeEntryGroup,
+): number {
+  return group.items.reduce((total, [start, end]) => {
+    return total + (end ? end.time : Date.now()) - start.time
+  }, 0)
+}
+
 /**
  * Display milliseconds as time in seconds
  * 00:00:00
@@ -85,8 +97,8 @@ export function isRunning(
 export function* summary(
   { entries }: State,
 ) {
-  let group = {
-    items: [] as [TimeEntry, TimeEntry | undefined][],
+  let group: TimeEntryGroup = {
+    items: [],
     label: '',
   }
 
@@ -105,7 +117,7 @@ export function* summary(
     if (entries[i].type === 'start') {
       group.items.push([entries[i], undefined])
     }
-    else {
+    else if(group.items.length) {
       group.items[group.items.length - 1][1] = entries[i]
     }
   }

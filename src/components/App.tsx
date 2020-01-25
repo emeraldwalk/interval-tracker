@@ -2,10 +2,29 @@ import React, { useCallback, useEffect, useRef, useState } from 'react'
 import {
   addTimeEntry,
   calculateElapsedSeconds,
+  calculateGroupElapsedSeconds,
+  displayTime,
   buttonDisplayText,
   summary,
-  State
+  State,
 } from '../state';
+
+const persistedState = localStorage.getItem('state')
+const [initialLabel, initialState]: [string, State] = persistedState
+  ? JSON.parse(persistedState)
+  : [
+    '',
+    {
+      entries: [],
+    }
+  ]
+
+function persistState(
+  label: string,
+  state: State,
+) {
+  localStorage.setItem('state', JSON.stringify([label, state]))
+}
 
 export interface AppProps {
 }
@@ -16,13 +35,11 @@ const App: React.FC<AppProps> = () => {
     ReturnType<typeof requestAnimationFrame>
   >()
 
-  const [elapsed, setElapsed] = useState()
-  const [label, setLabel] = useState('')
-
-  const stateRef = useRef<State>({
-    isRunning: false,
-    entries: [],
-  })
+  const [elapsed, setElapsed] = useState(
+    calculateElapsedSeconds(initialState)
+  )
+  const [label, setLabel] = useState(initialLabel)
+  const stateRef = useRef<State>(initialState)
 
   /**
    * Animation loop sets elapsed seconds so that we get
@@ -51,6 +68,7 @@ const App: React.FC<AppProps> = () => {
         stateRef.current,
         label,
       )
+      persistState(label, stateRef.current)
     },
     [label],
   )
@@ -60,18 +78,22 @@ const App: React.FC<AppProps> = () => {
   return (
     <div className="c_app">
       <input
+        className="c_app__group-name"
         onChange={({ currentTarget: { value }}) => {
           setLabel(value)
+          persistState(value, stateRef.current)
         }}
+        placeholder="Category"
         readOnly={type === 'start'}
         value={label}
       />
 
       <button
         className={`c_app__cmd ${type}`}
+        disabled={label === ''}
         onClick={onClick}
       >{
-        buttonDisplayText(stateRef.current, elapsed).map(
+        buttonDisplayText(stateRef.current, elapsed || 0).map(
           (text, i) => <span key={i}>{text}</span>
         )
       }
@@ -85,7 +107,15 @@ const App: React.FC<AppProps> = () => {
             <li
               className="c_app__group-label"
               key={`label-${label}-${i}`}
-            >{label.length ? label : 'Unlabeled'}</li>,
+            >
+              {label.length ? label : 'Unlabeled'}
+              &nbsp;(
+                {
+                  displayTime(
+                    calculateGroupElapsedSeconds({ items, label })
+                  )
+                }
+              )</li>,
             <ul
               className="c_app__group-items"
               key={`items-${label}-${i}`}
