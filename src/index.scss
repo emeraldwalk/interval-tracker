@@ -60,6 +60,21 @@
     }
   }
 
+  nav {
+    display: flex;
+  }
+
+  &__display-type {
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    margin: 4px;
+    padding: 4px;
+    &.active {
+      background-color: #333;
+      color: #fff;
+    }
+  }
+
   &__group-label {
     text-decoration: underline;
   }

@@ -10,7 +10,9 @@ export interface TimeEntryGroup {
 }
 
 export interface State {
+  buttonDisplayType: ButtonDisplayType,
   entries: TimeEntry[],
+  label: string,
 }
 
 /**
@@ -18,13 +20,12 @@ export interface State {
  */
 export function addTimeEntry(
   state: State,
-  label: string,
 ): State {
   return {
     ...state,
     entries: [
       {
-        label,
+        label: state.label,
         time: Date.now(),
         type: state.entries[0]?.type === 'start'
           ? 'stop'
@@ -35,11 +36,16 @@ export function addTimeEntry(
   }
 }
 
+export type ButtonDisplayType =
+  | 'Elapsed'
+  | '20 minutes'
+  | '1 hour'
+
 /**
  * Display text for primary button
  */
 export function buttonDisplayText(
-  { entries: [lastEntry] }: State,
+  { buttonDisplayType, entries: [lastEntry] }: State,
   elapsedSeconds: number,
 ): [string, string] {
 
@@ -47,7 +53,13 @@ export function buttonDisplayText(
     return ['Start', '\xa0']
   }
 
-  return ['Stop', displayTime(elapsedSeconds * 1000)]
+  const value = buttonDisplayType === 'Elapsed'
+    ? elapsedSeconds
+    : buttonDisplayType === '20 minutes'
+      ? 20 * 60 - elapsedSeconds
+      : 60 * 60 - elapsedSeconds
+
+  return ['Stop', displayTime(value * 1000)]
 }
 
 /**
@@ -55,7 +67,7 @@ export function buttonDisplayText(
  * last entry
  */
 export function calculateElapsedSeconds(
-  { entries: [lastEntry] }: State
+  lastEntry: TimeEntry | undefined,
 ): number | null {
   if (!lastEntry || lastEntry.type === 'stop') {
     return null

@@ -1,30 +1,35 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react'
 import {
   addTimeEntry,
+  ButtonDisplayType,
   calculateElapsedSeconds,
   calculateGroupElapsedSeconds,
   displayTime,
   buttonDisplayText,
   distinctLabelSummary,
-  contiguousLabelSummary,
   State,
+  TimeEntry,
 } from '../state';
 
+const buttonDisplayTypes: ButtonDisplayType[] = [
+  'Elapsed',
+  '20 minutes',
+  '1 hour'
+]
+
 const persistedState = localStorage.getItem('state')
-const [initialLabel, initialState]: [string, State] = persistedState
+const initialState: State = persistedState
   ? JSON.parse(persistedState)
-  : [
-    '',
-    {
-      entries: [],
-    }
-  ]
+  : {
+    buttonDisplayType: 'Elapsed',
+    label: '',
+    entries: [],
+  }
 
 function persistState(
-  label: string,
   state: State,
-) {
-  localStorage.setItem('state', JSON.stringify([label, state]))
+): void {
+  localStorage.setItem('state', JSON.stringify(state))
 }
 
 export interface AppProps {
@@ -36,11 +41,12 @@ const App: React.FC<AppProps> = () => {
     ReturnType<typeof requestAnimationFrame>
   >()
 
+  const [state, setState] = useState<State>(initialState)
+  const lastEntryRef = useRef<TimeEntry>(state.entries[0])
+
   const [elapsed, setElapsed] = useState(
-    calculateElapsedSeconds(initialState)
+    calculateElapsedSeconds(lastEntryRef.current)
   )
-  const [label, setLabel] = useState(initialLabel)
-  const stateRef = useRef<State>(initialState)
 
   /**
    * Animation loop sets elapsed seconds so that we get
@@ -48,7 +54,7 @@ const App: React.FC<AppProps> = () => {
    */
   function animate(time: number) {
     setElapsed(
-      calculateElapsedSeconds(stateRef.current),
+      calculateElapsedSeconds(lastEntryRef.current),
     )
 
     animationFrameHandleRef.current = requestAnimationFrame(animate)
@@ -65,36 +71,65 @@ const App: React.FC<AppProps> = () => {
 
   const onClick = useCallback(
     () => {
-      stateRef.current = addTimeEntry(
-        stateRef.current,
-        label,
+      const newState = addTimeEntry(
+        state,
       )
-      persistState(label, stateRef.current)
+      setState(newState)
+      lastEntryRef.current = newState.entries[0]
+      persistState(newState)
     },
-    [label],
+    [state],
   )
 
-  const [{ type } = { type: 'stop' }] = stateRef.current.entries
+  const [{ type } = { type: 'stop' }] = state.entries
 
   return (
     <div className="c_app">
+      <nav>
+        {
+          buttonDisplayTypes.map(type => (
+            <span
+              className={type === state.buttonDisplayType ? 'c_app__display-type active' : 'c_app__display-type'}
+              key={type}
+              onClick={() => {
+                const newState = {
+                  ...state,
+                  buttonDisplayType: type,
+                }
+
+                setState(newState)
+                persistState(newState)
+              }
+            }
+            >{type}</span>
+          ))
+        }
+      </nav>
       <input
         className="c_app__group-name"
         onChange={({ currentTarget: { value }}) => {
-          setLabel(value)
-          persistState(value, stateRef.current)
+          const newState = {
+            ...state,
+            label: value,
+          }
+
+          setState(newState)
+          persistState(newState)
         }}
         placeholder="Category"
         readOnly={type === 'start'}
-        value={label}
+        value={state.label}
       />
 
       <button
         className={`c_app__cmd ${type}`}
-        disabled={label === ''}
+        disabled={state.label === ''}
         onClick={onClick}
       >{
-        buttonDisplayText(stateRef.current, elapsed || 0).map(
+        buttonDisplayText(
+          state,
+          elapsed || 0,
+        ).map(
           (text, i) => <span key={i}>{text}</span>
         )
       }
@@ -103,7 +138,7 @@ const App: React.FC<AppProps> = () => {
       <ul className="c_app__summary">
         {
           distinctLabelSummary(
-            stateRef.current,
+            state,
           ).map(({ items, label }, i) => [
             <li
               className="c_app__group-label"
