@@ -45,13 +45,35 @@ export type ButtonDisplayType =
  * Display text for primary button
  */
 export function buttonDisplayText(
-  { buttonDisplayType, entries: [lastEntry] }: State,
+  { buttonDisplayType, entries: [lastEntry, ...rest], label }: State,
   elapsedSeconds: number,
 ): [string, string] {
 
-  if (!lastEntry || lastEntry.type === 'stop') {
+  if (!lastEntry) {
     return ['Start', '\xa0']
   }
+
+  const categoryEntries = [lastEntry, ...rest]
+    .filter(e => e.label === label)
+    .reverse()
+
+  if (categoryEntries.length === 0) {
+    return ['Start', '\xa0']
+  }
+
+  let total = 0
+  let startTime = 0
+  ; categoryEntries.forEach(entry => {
+    if (entry.type === 'start') {
+      startTime = entry.time
+    }
+    else {
+      total += entry.time - startTime
+    }
+
+  })
+
+  elapsedSeconds += Math.floor(total / 1000)
 
   const value = buttonDisplayType === 'Elapsed'
     ? elapsedSeconds
@@ -59,7 +81,10 @@ export function buttonDisplayText(
       ? 20 * 60 - elapsedSeconds
       : 60 * 60 - elapsedSeconds
 
-  return ['Stop', displayTime(value * 1000)]
+  return [
+    lastEntry.type === 'start' ? 'Stop' : 'Resume',
+    displayTime(value * 1000)
+  ]
 }
 
 /**
@@ -132,7 +157,7 @@ export function* contiguousLabelSummary(
     if (entries[i].type === 'start') {
       group.items.push([entries[i], undefined])
     }
-    else if(group.items.length) {
+    else if (group.items.length) {
       group.items[group.items.length - 1][1] = entries[i]
     }
   }
@@ -153,7 +178,7 @@ export function distinctLabelSummary(
     if (cur.type === 'start') {
       memo[cur.label].push([cur, undefined])
     }
-    else if(memo[cur.label].length) {
+    else if (memo[cur.label].length) {
       memo[cur.label][memo[cur.label].length - 1][1] = cur
     }
     return memo
