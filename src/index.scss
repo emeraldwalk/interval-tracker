@@ -1,0 +1,50 @@
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+#app {
+  /** Fallback for browsers without css variables */
+  height: 100vh;
+  max-height: 100vh;
+  /**
+   * Deal with mobile browser status bars.
+   * Requires a css variable named --vh provided
+   * by useViewportHeight() hook.
+   */
+   height: calc(var(--vh, 100vh));
+   max-height: calc(var(--vh, 100vh));
+
+  width: 100vw;
+}
+
+.c_app {
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding: 20px;
+
+  &__cmd {
+    border: 1px solid #ccc;
+    border-radius: 50px;
+    color: #fff;
+    display: flex;
+    font-size: 2rem;
+    height: 200px;
+    padding-left: 36px;
+    width: 200px;
+
+    &:focus {
+      outline: 0;
+    }
+
+    &.start {
+      background-color: red;
+    }
+    &.stop {
+      background-color: green;
+    }
+  }
+}

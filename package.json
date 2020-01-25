@@ -1,0 +1,20 @@
+{
+  "name": "pomodoro-tracker",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/react": "^16.9.19",
+    "@types/react-dom": "^16.9.5",
+    "node-sass": "^4.13.1",
+    "parcel": "^1.12.4",
+    "typescript": "^3.7.5"
+  },
+  "dependencies": {
+    "react": "^16.12.0",
+    "react-dom": "^16.12.0"
+  },
+  "scripts": {
+    "start": "parcel index.html"
+  }
+}

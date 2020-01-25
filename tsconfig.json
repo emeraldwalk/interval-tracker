@@ -1,0 +1,14 @@
+{
+  "compilerOptions": {
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "jsx": "react",
+    "lib": [
+      "dom",
+      "esnext"
+    ],
+    "module": "commonjs",
+    "strict": true,
+    "target": "es5"
+  }
+}
