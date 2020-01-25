@@ -3,16 +3,9 @@ import {
   addTimeEntry,
   calculateElapsedSeconds,
   buttonDisplayText,
+  summary,
   State
 } from '../state';
-
-function* reverse<T>(
-  array: T[],
-) {
-  for (let i = array.length - 1; i >= 0; --i) {
-    yield array[i]
-  }
-}
 
 export interface AppProps {
 }
@@ -77,16 +70,37 @@ const App: React.FC<AppProps> = () => {
       <button
         className={`c_app__cmd ${type}`}
         onClick={onClick}
-      >{buttonDisplayText(stateRef.current, elapsed)}
+      >{
+        buttonDisplayText(stateRef.current, elapsed).map(
+          (text, i) => <span key={i}>{text}</span>
+        )
+      }
       </button>
 
-      <ul>
+      <ul className="c_app__summary">
         {
-          Array.from(reverse(
-            stateRef.current.entries
-          )).map(({ label, time, type }) => (
-          <li key={time}>{label}: {type} {new Date(time).toLocaleTimeString()}</li>
-          ))
+          Array.from(summary(
+            stateRef.current,
+          )).map(({ items, label }, i) => [
+            <li
+              className="c_app__group-label"
+              key={`label-${label}-${i}`}
+            >{label.length ? label : 'Unlabeled'}</li>,
+            <ul
+              className="c_app__group-items"
+              key={`items-${label}-${i}`}
+            >
+              {
+                items.map(([start, stop]) => (
+                  <li key={start.time}>{
+                    new Date(start.time).toLocaleTimeString()
+                  } - {
+                    stop && new Date(stop.time).toLocaleTimeString()
+                  }</li>
+                ))
+              }
+            </ul>
+          ])
         }
       </ul>
     </div>

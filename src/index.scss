@@ -27,14 +27,22 @@
   padding: 20px;
 
   &__cmd {
+    align-items: center;
     border: 1px solid #ccc;
     border-radius: 50px;
     color: #fff;
     display: flex;
+    flex-direction: column;
     font-size: 2rem;
+    justify-content: space-evenly;
     height: 200px;
-    padding-left: 36px;
     width: 200px;
+
+    :nth-child(2) {
+      display: block;
+      text-align: left;
+      width: 130px;
+    }
 
     &:focus {
       outline: 0;
@@ -46,5 +54,15 @@
     &.stop {
       background-color: green;
     }
+
+  }
+
+  &__group-label {
+    text-decoration: underline;
+  }
+
+  &__group-items,
+  &__summary {
+    list-style: none;
   }
 }

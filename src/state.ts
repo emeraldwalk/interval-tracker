@@ -10,18 +10,40 @@ export interface State {
 }
 
 /**
+ * Add a new time entry with given label
+ */
+export function addTimeEntry(
+  state: State,
+  label: string,
+): State {
+  return {
+    ...state,
+    entries: [
+      {
+        label,
+        time: Date.now(),
+        type: state.entries[0]?.type === 'start'
+          ? 'stop'
+          : 'start',
+      },
+      ...state.entries,
+    ]
+  }
+}
+
+/**
  * Display text for primary button
  */
 export function buttonDisplayText(
   { entries: [lastEntry] }: State,
   elapsedSeconds: number,
-): string {
+): [string, string] {
 
   if (!lastEntry || lastEntry.type === 'stop') {
-    return 'Start'
+    return ['Start', '\xa0']
   }
 
-  return displayTime(elapsedSeconds * 1000)
+  return ['Stop', displayTime(elapsedSeconds * 1000)]
 }
 
 /**
@@ -31,7 +53,7 @@ export function buttonDisplayText(
 export function calculateElapsedSeconds(
   { entries: [lastEntry] }: State
 ): number | null {
-  if (!lastEntry) {
+  if (!lastEntry || lastEntry.type === 'stop') {
     return null
   }
 
@@ -60,24 +82,35 @@ export function isRunning(
   return lastEntry?.type === 'start'
 }
 
-/**
- * Add a new time entry with given label
- */
-export function addTimeEntry(
-  state: State,
-  label: string,
-): State {
-  return {
-    ...state,
-    entries: [
-      {
-        label,
-        time: Date.now(),
-        type: state.entries[0]?.type === 'start'
-          ? 'stop'
-          : 'start',
-      },
-      ...state.entries,
-    ]
+export function* summary(
+  { entries }: State,
+) {
+  let group = {
+    items: [] as [TimeEntry, TimeEntry | undefined][],
+    label: '',
+  }
+
+  for (let i = entries.length - 1; i >= 0; --i) {
+    if (entries[i].label !== group.label) {
+      if (group.items.length) {
+        yield group
+      }
+
+      group = {
+        items: [],
+        label: entries[i].label,
+      }
+    }
+
+    if (entries[i].type === 'start') {
+      group.items.push([entries[i], undefined])
+    }
+    else {
+      group.items[group.items.length - 1][1] = entries[i]
+    }
+  }
+
+  if (group.items.length) {
+    yield group
   }
 }
