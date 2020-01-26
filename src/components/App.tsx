@@ -188,6 +188,7 @@ const App: React.FC<AppProps> = () => {
         className="c_app__clear-all"
         onClick={() => {
           localStorage.clear()
+          location.reload()
         }}
       >Clear All
       </button>
