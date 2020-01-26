@@ -42,7 +42,7 @@ const App: React.FC<AppProps> = () => {
   >()
 
   const [state, setState] = useState<State>(initialState)
-  const lastEntryRef = useRef<TimeEntry>(state.entries[0])
+  const lastEntryRef = useRef<TimeEntry | undefined>(state.entries[0])
 
   const [elapsed, setElapsed] = useState(
     calculateElapsedSeconds(lastEntryRef.current)
@@ -108,8 +108,23 @@ const App: React.FC<AppProps> = () => {
       <input
         className="c_app__group-name"
         onChange={({ currentTarget: { value }}) => {
-          const newState = {
+          let { entries } = state
+
+          if (lastEntryRef.current?.type === 'start') {
+            lastEntryRef.current = {
+              ...lastEntryRef.current,
+              label: value,
+            }
+
+            entries = [
+              lastEntryRef.current,
+              ...entries.slice(1),
+            ]
+          }
+
+          const newState: State = {
             ...state,
+            entries,
             label: value,
           }
 
@@ -117,7 +132,6 @@ const App: React.FC<AppProps> = () => {
           persistState(newState)
         }}
         placeholder="Category"
-        readOnly={type === 'start'}
         value={state.label}
       />
 
@@ -149,7 +163,7 @@ const App: React.FC<AppProps> = () => {
                 {
                   displayTime(
                     calculateGroupElapsedSeconds({ items, label })
-                  ).substr(0, 5)
+                  )
                 }
               )</li>,
             <ul

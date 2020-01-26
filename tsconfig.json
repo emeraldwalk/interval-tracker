@@ -1,5 +1,6 @@
 {
   "compilerOptions": {
+    "baseUrl": "./src",
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
     "jsx": "react",
@@ -8,7 +9,13 @@
       "esnext"
     ],
     "module": "commonjs",
+    "paths": {
+      "~*": ["./*"]
+    },
     "strict": true,
     "target": "es5"
-  }
+  },
+  "include": [
+    "src/**/*"
+  ]
 }
