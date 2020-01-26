@@ -1,0 +1,15 @@
+{
+    "dev": {
+        "awscloudformation": {
+            "AuthRoleName": "amplify-interval-tracker-dev-113948-authRole",
+            "UnauthRoleArn": "arn:aws:iam::157315783832:role/amplify-interval-tracker-dev-113948-unauthRole",
+            "AuthRoleArn": "arn:aws:iam::157315783832:role/amplify-interval-tracker-dev-113948-authRole",
+            "Region": "us-east-1",
+            "DeploymentBucketName": "amplify-interval-tracker-dev-113948-deployment",
+            "UnauthRoleName": "amplify-interval-tracker-dev-113948-unauthRole",
+            "StackName": "amplify-interval-tracker-dev-113948",
+            "StackId": "arn:aws:cloudformation:us-east-1:157315783832:stack/amplify-interval-tracker-dev-113948/cab001a0-3f99-11ea-b3c7-0e0e50fbc697",
+            "AmplifyAppId": "d3eiog8cpjjxzo"
+        }
+    }
+}

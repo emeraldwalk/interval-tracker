@@ -1,5 +1,5 @@
 {
-  "name": "pomodoro-tracker",
+  "name": "interval-tracker",
   "version": "1.0.0",
   "main": "index.js",
   "license": "MIT",
@@ -16,6 +16,7 @@
   },
   "scripts": {
     "build": "parcel build index.html",
+    "deploy": "amplify publish",
     "start": "parcel index.html"
   }
 }
