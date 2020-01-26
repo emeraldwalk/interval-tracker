@@ -64,6 +64,11 @@
     display: flex;
   }
 
+  &__clear-all {
+    border: 1px solid #ccc;
+    padding: 4px;
+  }
+
   &__display-type {
     border: 1px solid #ccc;
     border-radius: 4px;
@@ -96,6 +101,8 @@
 
   &__group-items,
   &__summary {
+    flex-grow: 1;
     list-style: none;
+    overflow-y: scroll;
   }
 }

@@ -183,6 +183,14 @@ const App: React.FC<AppProps> = () => {
           ])
         }
       </ul>
+
+      <button
+        className="c_app__clear-all"
+        onClick={() => {
+          localStorage.clear()
+        }}
+      >Clear All
+      </button>
     </div>
   );
 };
