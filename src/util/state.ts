@@ -1,3 +1,5 @@
+import { mod } from './math'
+
 export interface TimeEntry {
   label: string,
   time: number,
@@ -70,7 +72,6 @@ export function buttonDisplayText(
     else {
       total += entry.time - startTime
     }
-
   })
 
   elapsedSeconds += Math.floor(total / 1000)
@@ -78,8 +79,8 @@ export function buttonDisplayText(
   const value = buttonDisplayType === 'Elapsed'
     ? elapsedSeconds
     : buttonDisplayType === '20 minutes'
-      ? 20 * 60 - elapsedSeconds
-      : 60 * 60 - elapsedSeconds
+      ? countdownValue(20 * 60, elapsedSeconds)
+      : countdownValue(60 * 60, elapsedSeconds)
 
   return [
     lastEntry.type === 'start' ? 'Stop' : 'Resume',
@@ -109,6 +110,24 @@ export function calculateGroupElapsedSeconds(
   return group.items.reduce((total, [start, end]) => {
     return total + (end ? end.time : Date.now()) - start.time
   }, 0)
+}
+
+/**
+ * Calculate current countdown value based on
+ * a start and elapsed number of seconds.
+ */
+export function countdownValue(
+  startSeconds: number,
+  elapsedSeconds: number,
+): number {
+  if (elapsedSeconds === 0) {
+    return startSeconds
+  }
+
+  return mod(
+    startSeconds - elapsedSeconds,
+    startSeconds
+  )
 }
 
 /**

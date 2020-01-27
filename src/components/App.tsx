@@ -9,7 +9,8 @@ import {
   distinctLabelSummary,
   State,
   TimeEntry,
-} from '../state';
+} from '../util/state';
+import { showNotification } from '../util/notifications';
 
 const buttonDisplayTypes: ButtonDisplayType[] = [
   'Elapsed',
@@ -64,7 +65,7 @@ const App: React.FC<AppProps> = () => {
     () => {
       // initial call
       animationFrameHandleRef.current = requestAnimationFrame(animate)
-      ;() => cancelAnimationFrame(animationFrameHandleRef.current!)
+        ; () => cancelAnimationFrame(animationFrameHandleRef.current!)
     },
     []
   )
@@ -83,6 +84,19 @@ const App: React.FC<AppProps> = () => {
 
   const [{ type } = { type: 'stop' }] = state.entries
 
+  const buttonText = buttonDisplayText(
+    state,
+    elapsed || 0,
+  )
+
+  if (
+    type === 'start' &&
+    state.buttonDisplayType !== 'Elapsed' &&
+    buttonText[1] === '00:00:00'
+  ) {
+    showNotification('00:00:00')
+  }
+
   return (
     <div className="c_app">
       <nav>
@@ -100,14 +114,14 @@ const App: React.FC<AppProps> = () => {
                 setState(newState)
                 persistState(newState)
               }
-            }
+              }
             >{type}</span>
           ))
         }
       </nav>
       <input
         className="c_app__group-name"
-        onChange={({ currentTarget: { value }}) => {
+        onChange={({ currentTarget: { value } }) => {
           let { entries } = state
 
           if (lastEntryRef.current?.type === 'start') {
@@ -139,14 +153,9 @@ const App: React.FC<AppProps> = () => {
         className={`c_app__cmd ${type}`}
         disabled={state.label === ''}
         onClick={onClick}
-      >{
-        buttonDisplayText(
-          state,
-          elapsed || 0,
-        ).map(
-          (text, i) => <span key={i}>{text}</span>
-        )
-      }
+      >{buttonText.map(
+        (text, i) => <span key={i}>{text}</span>
+      )}
       </button>
 
       <ul className="c_app__summary">
@@ -161,10 +170,10 @@ const App: React.FC<AppProps> = () => {
               {label.length ? label : 'Unlabeled'}
               &nbsp;(
                 {
-                  displayTime(
-                    calculateGroupElapsedSeconds({ items, label })
-                  )
-                }
+                displayTime(
+                  calculateGroupElapsedSeconds({ items, label })
+                )
+              }
               )</li>,
             <ul
               className="c_app__group-items"
@@ -175,8 +184,8 @@ const App: React.FC<AppProps> = () => {
                   <li key={start.time}>{
                     new Date(start.time).toLocaleTimeString()
                   } - {
-                    stop && new Date(stop.time).toLocaleTimeString()
-                  }</li>
+                      stop && new Date(stop.time).toLocaleTimeString()
+                    }</li>
                 ))
               }
             </ul>

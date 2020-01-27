@@ -15,8 +15,8 @@
     "react-dom": "^16.12.0"
   },
   "scripts": {
-    "build": "parcel build index.html",
+    "build": "rm dist/* && cp src/sw.js dist/ && parcel build index.html",
     "deploy": "amplify publish",
-    "start": "parcel index.html"
+    "start": "rm dist/* && cp src/sw.js dist/ && parcel index.html"
   }
 }
