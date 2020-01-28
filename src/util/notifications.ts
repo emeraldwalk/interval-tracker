@@ -4,7 +4,7 @@ import icon from '../../images/icon-48.png'
  * Register service worker and cache the result.
  */
 let registrationCache: ServiceWorkerRegistration
-async function registerNotifications(): Promise<ServiceWorkerRegistration | undefined> {
+export async function registerNotifications(): Promise<ServiceWorkerRegistration | undefined> {
   const swName = 'sw.js'
   if (!('serviceWorker' in navigator)) {
     return
