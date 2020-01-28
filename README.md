@@ -1,8 +1,8 @@
 # Interval Tracker
 PWA experiment using [Parcel.js](https://parceljs.org/), [ReactJS](https://reactjs.org/), and [TypeScript](https://www.typescriptlang.org/)
 
-![Start](docs/start.png | width=100)
-![Stop](docs/stop.png | width=100)
+<img src="docs/start.png" width="200">
+<img src="docs/stop.png" width="200">
 
 ## Installation
 ```
